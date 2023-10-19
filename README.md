@@ -9,7 +9,7 @@ bun install
 To run:
 
 ```bash
-bun run http.ts
+bun run http.js
 ```
 
 To deploy, run through our

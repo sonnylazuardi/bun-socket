@@ -1,18 +1,22 @@
-// http.ts
-const vmRegion = process.env.FLY_REGION || "local"
-console.log(`Doing it from ${vmRegion}`)
 
-Bun.serve({
-  port: 3000,
-  fetch(request) {
-    const region = request.headers.get("fly-region") || "??"
-    const url = new URL(request.url)
-    console.log(request.headers.get("fly-client-ip"), request.url)
+const http = require("http").createServer(function(request, response) {
+  response.writeHead(200, {
+      'Content-Type': 'text/html'
+  });
+  response.write("Welcome Bun!");
+  response.end();
 
-    return new Response(`
-      Welcome to Bun!\n\n
-      This is ${url.pathname}\n
-      Served from ${region}
-    `);
-  },
-})
+});
+const io = require("socket.io")(http);
+const port = process.env.PORT || 3000;
+io.on("connection", (socket) => {
+    console.log(`User ${socket.id} connected`)
+
+    socket.on('message', (data) => {
+        io.emit('message', {user: socket.id.substring(0, 4), counter: data.counter })
+    })
+});
+
+http.listen(port, () => {
+  console.log(`Socket.IO server running at ${port}`);
+});
